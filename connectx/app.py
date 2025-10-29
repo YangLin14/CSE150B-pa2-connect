@@ -19,12 +19,25 @@ def main():
                 canvas.create_oval(x-30,y-30,x+30,y+30,fill="lightblue")
                 v=g.board[r][c]
                 if v: canvas.create_oval(x-28,y-28,x+28,y+28, fill=("red" if v=='R' else "gold"))
+    def check_game_over():
+        if not g.is_terminal():
+            return False
+        winner = g.winner()
+        if winner == 'R':
+            messagebox.showinfo("Game Over", "Congratulations, Human (R) wins!")
+        elif winner == 'Y':
+            messagebox.showinfo("Game Over", "AI (Y) wins!")
+        else:
+            messagebox.showinfo("Game Over", "It's a draw!")
+        return True
     def click(evt):
         if g.is_terminal(): return
         c=int((evt.x-MARGIN)//CELL)
         if 0<=c<COLS and g.can_play(c):
             g.play(c); draw()
-            if not g.is_terminal(): root.after(50, ai_turn)
+            if check_game_over():
+                return
+            root.after(50, ai_turn)
     def ai_turn():
         if mode.get()=="RANDOM":
             mv=random.choice(g.legal_actions())
@@ -34,6 +47,7 @@ def main():
                 messagebox.showinfo("AI not implemented","Implement best_move() in ai.py; using random.")
                 mv=random.choice(g.legal_actions())
         g.play(mv); draw()
+        check_game_over()
     tk.Button(root,text="Reset",command=lambda:(g.reset(),draw())).pack(pady=6)
     canvas.bind("<Button-1>", click); draw(); root.mainloop()
 if __name__=="__main__": main()
